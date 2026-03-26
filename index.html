@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
   <title>Carrusel horizontal</title>
   <style>
     * {
@@ -18,7 +18,7 @@
       overflow: hidden;
       background: #000;
       font-family: Arial, Helvetica, sans-serif;
-      touch-action: pan-y;
+      touch-action: auto;
     }
 
     .app {
@@ -59,11 +59,12 @@
       width: 100dvw;
       height: 100vh;
       height: 100dvh;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
       user-select: none;
       -webkit-user-drag: none;
       pointer-events: none;
+      background: #000;
     }
 
     .controls {
@@ -255,6 +256,10 @@
 
     track.addEventListener('touchstart', (event) => {
       if (isPortraitMobileMode) return;
+      if (event.touches.length > 1) {
+        isDragging = false;
+        return;
+      }
       startX = event.touches[0].clientX;
       currentX = startX;
       isDragging = true;
@@ -263,6 +268,7 @@
 
     track.addEventListener('touchmove', (event) => {
       if (!isDragging || isPortraitMobileMode) return;
+      if (event.touches.length > 1) return;
       currentX = event.touches[0].clientX;
       const deltaX = currentX - startX;
       const visibleSlide = currentIndex + 1;

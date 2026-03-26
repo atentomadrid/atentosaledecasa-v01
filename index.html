@@ -77,6 +77,12 @@
       padding: 0 12px;
     }
 
+    @media (max-width: 900px) {
+      .controls {
+        display: none;
+      }
+    }
+
     .nav {
       pointer-events: auto;
       border: 0;
@@ -113,6 +119,16 @@
 
     .portrait-lock.visible {
       display: flex;
+    }
+
+    .portrait-lock img {
+      width: 100vw;
+      width: 100dvw;
+      height: 100vh;
+      height: 100dvh;
+      object-fit: contain;
+      display: block;
+      background: #000;
     }
 
     .fullscreen-btn,
@@ -202,12 +218,6 @@
     function buildSlides() {
       track.innerHTML = '';
 
-      const coverSlide = document.createElement('div');
-      coverSlide.className = 'slide';
-      coverSlide.dataset.type = 'cover';
-      coverSlide.innerHTML = `<img src="${coverImage}" alt="Imagen 0" />`;
-      track.appendChild(coverSlide);
-
       carouselImages.forEach((src, i) => {
         const slide = document.createElement('div');
         slide.className = 'slide';
@@ -224,11 +234,10 @@
 
     function updateControls() {
       const hide = isPortraitMobileMode;
-      controls.classList.toggle('hidden', hide);
+      const mobile = isMobileLike();
+      controls.classList.toggle('hidden', hide || mobile);
       portraitLock.classList.toggle('visible', hide);
-      portraitLock.textContent = hide
-        ? 'Gira el móvil en horizontal para navegar las imágenes.'
-        : '';
+      portraitLock.innerHTML = hide ? `<img src="${coverImage}" alt="Imagen 0" />` : '';
       updateFullscreenButtons();
     }
 
@@ -240,7 +249,7 @@
       if (isPortraitMobileMode) {
         track.style.transform = 'translateX(0vw)';
       } else {
-        const visibleSlide = currentIndex + 1; // +1 porque la primera slide es la imagen 0
+        const visibleSlide = currentIndex;
         track.style.transform = `translateX(-${visibleSlide * 100}vw)`;
       }
 
@@ -309,6 +318,17 @@
       enterFullscreen();
     }
 
+    function bindAutoFullscreenTriggers() {
+      const trigger = () => {
+        if (!isFullscreenActive()) {
+          tryAutoFullscreen();
+        }
+      };
+
+      document.addEventListener('touchstart', trigger, { passive: true, once: true });
+      document.addEventListener('click', trigger, { passive: true, once: true });
+    }
+
     function prev() {
       goTo(currentIndex - 1);
     }
@@ -345,7 +365,7 @@
       if (event.touches.length > 1) return;
       currentX = event.touches[0].clientX;
       const deltaX = currentX - startX;
-      const visibleSlide = currentIndex + 1;
+      const visibleSlide = currentIndex;
       const offset = -visibleSlide * window.innerWidth + deltaX;
       track.style.transform = `translateX(${offset}px)`;
     }, { passive: true });
@@ -382,12 +402,15 @@
     buildSlides();
     render(false);
     updateFullscreenButtons();
+    bindAutoFullscreenTriggers();
 
     window.addEventListener('load', () => {
       setTimeout(() => {
         tryAutoFullscreen();
+        updateFullscreenButtons();
       }, 300);
     });
+
   </script>
 </body>
 </html>

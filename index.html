@@ -5,160 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
   <title>Carrusel horizontal</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      width: 100%;
-      height: 100%;
-      min-height: 100%;
-      overflow: hidden;
-      background: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      touch-action: auto;
+      width: 100%; height: 100%; min-height: 100%; overflow: hidden;
+      background: #000; font-family: Arial, Helvetica, sans-serif; touch-action: auto;
     }
-
-    .app {
-      position: relative;
-      width: 100vw;
-      width: 100dvw;
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-      background: #000;
-    }
-
-    .track {
-      display: flex;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-      will-change: transform;
-    }
-
+    .app { position: relative; width: 100dvw; height: 100dvh; overflow: hidden; background: #000; }
+    .track { display: flex; width: 100%; height: 100%; transition: transform 0.45s cubic-bezier(0.22,1,0.36,1); will-change: transform; }
     .slide {
-      min-width: 100vw;
-      min-width: 100dvw;
-      width: 100vw;
-      width: 100dvw;
-      height: 100vh;
-      height: 100dvh;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      overflow: hidden;
-      position: relative;
+      min-width: 100dvw; width: 100dvw; height: 100dvh; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; background: #000; overflow: hidden;
     }
-
     .slide img {
-      width: 100vw;
-      width: 100dvw;
-      height: 100vh;
-      height: 100dvh;
-      object-fit: contain;
-      display: block;
-      user-select: none;
-      -webkit-user-drag: none;
-      pointer-events: none;
-      background: #000;
+      width: 100dvw; height: 100dvh; object-fit: contain; display: block; background: #000;
+      user-select: none; -webkit-user-drag: none; pointer-events: none;
     }
-
-    .controls {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 12px;
+    .controls { position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; }
+    .nav { pointer-events: auto; border: 0; width: 52px; height: 52px; border-radius: 999px; background: rgba(0,0,0,0.5); color:#fff; font-size:28px; cursor:pointer; backdrop-filter: blur(4px); }
+    .fullscreen-btn, .exit-fullscreen-btn {
+      position:absolute; z-index:20; border:0; width:48px; height:48px; border-radius:999px;
+      background: rgba(0,0,0,0.5); color:#fff; font-size:24px; display:flex; align-items:center; justify-content:center;
     }
-
-    
-
-    .nav {
-      pointer-events: auto;
-      border: 0;
-      width: 44px;
-      height: 44px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.35);
-      color: #fff;
-      font-size: 24px;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-    }
-
-    .nav:active {
-      transform: scale(0.96);
-    }
-
-    .status {
-      display: none;
-    }
-
-    .portrait-lock {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      background: rgba(0,0,0,0.15);
-      text-align: center;
-      padding: 24px;
-      pointer-events: none;
-    }
-
-    .portrait-lock.visible {
-      display: flex;
-    }
-
-    .portrait-lock img {
-      width: 100vw;
-      width: 100dvw;
-      height: 100vh;
-      height: 100dvh;
-      object-fit: contain;
-      display: block;
-      background: #000;
-    }
-
-    .fullscreen-btn,
-    .exit-fullscreen-btn {
-      position: absolute;
-      z-index: 20;
-      border: 0;
-      width: 48px;
-      height: 48px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.5);
-      color: #fff;
-      font-size: 24px;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .fullscreen-btn {
-      right: 16px;
-      bottom: 16px;
-    }
-
-    .exit-fullscreen-btn {
-      right: 16px;
-      top: 16px;
-    }
-
-    .hidden {
-      display: none !important;
-    }
+    .fullscreen-btn { right:16px; bottom:16px; }
+    .exit-fullscreen-btn { right:16px; top:16px; }
+    .portrait-lock { position:absolute; inset:0; display:none; }
+    .portrait-lock.visible { display:flex; }
+    .portrait-lock img { width:100dvw; height:100dvh; object-fit: contain; }
+    .hidden { display:none !important; }
   </style>
 </head>
 <body>
@@ -166,318 +39,159 @@
     <div class="track" id="track"></div>
 
     <div class="controls" id="controls">
-      <button class="nav" id="prevBtn" aria-label="Imagen anterior">‹</button>
-      <button class="nav" id="nextBtn" aria-label="Imagen siguiente">›</button>
+      <button class="nav" id="prevBtn">‹</button>
+      <button class="nav" id="nextBtn">›</button>
     </div>
 
-    <div class="status" id="status"></div>
-    <button class="exit-fullscreen-btn hidden" id="exitFullscreenBtn" aria-label="Salir de pantalla completa">×</button>
-    <button class="fullscreen-btn hidden" id="enterFullscreenBtn" aria-label="Entrar en pantalla completa">⤢</button>
+    <button class="exit-fullscreen-btn hidden" id="exitFullscreenBtn">×</button>
+    <button class="fullscreen-btn hidden" id="enterFullscreenBtn">⤢</button>
     <div class="portrait-lock" id="portraitLock"></div>
   </div>
 
-  <script>
-    // Archivos disponibles:
-    // imagen 0.jpg --> portada para móvil en vertical
-    // imagen 1.jpg a imagen 9.jpg --> carrusel real
-    const coverImage = 'imagen 0.jpg';
-    const carouselImages = Array.from({ length: 9 }, (_, i) => `imagen ${i + 1}.jpg`);
+<script>
+const coverImage = 'imagen 0.jpg';
+const carouselImages = Array.from({ length: 9 }, (_, i) => `imagen ${i + 1}.jpg`);
 
-    const app = document.getElementById('app');
-    const track = document.getElementById('track');
-    const status = document.getElementById('status');
-    const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
-    const enterFullscreenBtn = document.getElementById('enterFullscreenBtn');
-    const portraitLock = document.getElementById('portraitLock');
-    const controls = document.getElementById('controls');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
+const app = document.getElementById('app');
+const track = document.getElementById('track');
+const portraitLock = document.getElementById('portraitLock');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const enterFullscreenBtn = document.getElementById('enterFullscreenBtn');
+const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
 
-    // Índice del carrusel real (0 = imagen 1.jpg, 9 = imagen 10.jpg)
-    let currentIndex = 0;
-    let isPortraitMobileMode = false;
+let currentIndex = 0;
+let isPortraitMobileMode = false;
+let startX = 0, startY = 0, isDragging = false, isLocked = false, dragStartTime = 0, lastDeltaX = 0;
 
-    let startX = 0;
-    let startY = 0;
-    let currentX = 0;
-    let isDragging = false;
-    let isLocked = false;
-    let dragStartTime = 0;
-    let lastDeltaX = 0;
+function isMobileLike(){ return window.matchMedia('(max-width:900px)').matches; }
+function isPortrait(){ return window.matchMedia('(orientation:portrait)').matches; }
+function shouldShowCover(){ return isMobileLike() && isPortrait(); }
 
-    function isMobileLike() {
-      return window.matchMedia('(max-width: 900px)').matches;
-    }
+function buildSlides(){
+  track.innerHTML='';
+  carouselImages.forEach((src,i)=>{
+    const slide=document.createElement('div');
+    slide.className='slide';
+    slide.innerHTML=`<img src="${src}"/>`;
+    track.appendChild(slide);
+  });
+}
 
-    function isPortrait() {
-      return window.matchMedia('(orientation: portrait)').matches;
-    }
+function render(animate=true){
+  track.style.transition = animate ? 'transform 0.45s cubic-bezier(0.22,1,0.36,1)' : 'none';
+  isPortraitMobileMode = shouldShowCover();
 
-    function shouldShowCover() {
-      return isMobileLike() && isPortrait();
-    }
+  if(isPortraitMobileMode){
+    portraitLock.classList.add('visible');
+    portraitLock.innerHTML = `<img src="${coverImage}"/>`;
+  } else {
+    portraitLock.classList.remove('visible');
+    const w = window.innerWidth;
+    track.style.transform = `translate3d(-${currentIndex * w}px,0,0)`;
+  }
+}
 
-    function buildSlides() {
-      track.innerHTML = '';
+function goTo(i){
+  currentIndex = Math.max(0, Math.min(i, carouselImages.length - 1));
+  render();
+}
 
-      carouselImages.forEach((src, i) => {
-        const slide = document.createElement('div');
-        slide.className = 'slide';
-        slide.dataset.type = 'carousel';
-        slide.dataset.index = i;
-        slide.innerHTML = `<img src="${src}" alt="Imagen ${i + 1}" />`;
-        track.appendChild(slide);
-      });
-    }
+function next(){
+  if(currentIndex >= carouselImages.length - 1){ render(); return; }
+  goTo(currentIndex + 1);
+}
 
-    function updateStatus() {
-      status.textContent = '';
-    }
+function prev(){
+  if(currentIndex <= 0){ render(); return; }
+  goTo(currentIndex - 1);
+}
 
-    function updateControls() {
-      const hide = isPortraitMobileMode;
-      controls.classList.toggle('hidden', hide);
-      portraitLock.classList.toggle('visible', hide);
-      portraitLock.innerHTML = hide ? `<img src="${coverImage}" alt="Imagen 0" />` : '';
-      updateFullscreenButtons();
-    }
+function applyDrag(dx){
+  const w = window.innerWidth;
+  const base = -(currentIndex * w);
+  const atFirst = currentIndex === 0 && dx > 0;
+  const atLast = currentIndex === carouselImages.length - 1 && dx < 0;
+  const resistance = (atFirst || atLast) ? 0.35 : 1;
+  track.style.transform = `translate3d(${base + dx*resistance}px,0,0)`;
+}
 
-    function render(animate = true) {
-      track.style.transition = animate
-        ? 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)'
-        : 'none';
+function finishSwipe(dx,dt){
+  const w = window.innerWidth;
+  const velocity = Math.abs(dx)/dt;
 
-      isPortraitMobileMode = shouldShowCover();
+  if(dx < -w*0.18 || (dx < -25 && velocity>0.5)) return next();
+  if(dx > w*0.18 || (dx > 25 && velocity>0.5)) return prev();
 
-      if (isPortraitMobileMode) {
-        track.style.transform = 'translate3d(0, 0, 0)';
-      } else {
-        const visibleSlide = currentIndex;
-        const slideWidth = window.innerWidth;
-        track.style.transform = `translate3d(-${visibleSlide * slideWidth}px, 0, 0)`;
-      }
+  render();
+}
 
-      updateStatus();
-      updateControls();
-    }
+track.addEventListener('touchstart',e=>{
+  if(isPortraitMobileMode) return;
+  if(e.touches.length>1) return;
 
-    function goTo(index) {
-      currentIndex = Math.max(0, Math.min(index, carouselImages.length - 1));
-      if (!isPortraitMobileMode) {
-        render();
-      } else {
-        updateStatus();
-      }
-    }
+  startX=e.touches[0].clientX;
+  startY=e.touches[0].clientY;
+  dragStartTime=Date.now();
+  isDragging=true;
+  isLocked=false;
+  track.style.transition='none';
+});
 
-    function applyDrag(deltaX) {
-      const slideWidth = window.innerWidth;
-      const baseOffset = -(currentIndex * slideWidth);
-      const atFirst = currentIndex === 0 && deltaX > 0;
-      const atLast = currentIndex === carouselImages.length - 1 && deltaX < 0;
-      const resistance = (atFirst || atLast) ? 0.35 : 1;
-      const offset = baseOffset + (deltaX * resistance);
-      track.style.transform = `translate3d(${offset}px, 0, 0)`;
-    }
+track.addEventListener('touchmove',e=>{
+  if(!isDragging || isPortraitMobileMode) return;
+  const t=e.touches[0];
+  const dx=t.clientX-startX;
+  const dy=t.clientY-startY;
 
-    function finishSwipe(deltaX, durationMs) {
-      const slideWidth = window.innerWidth;
-      const velocity = durationMs > 0 ? Math.abs(deltaX) / durationMs : 0;
-      const distanceThreshold = slideWidth * 0.18;
-      const velocityThreshold = 0.55;
+  if(!isLocked){
+    if(Math.abs(dx)>Math.abs(dy)) isLocked=true;
+    else { isDragging=false; render(); return; }
+  }
 
-      if (deltaX < -distanceThreshold || (deltaX < -25 && velocity > velocityThreshold)) {
-        next();
-        return;
-      }
+  lastDeltaX=dx;
+  applyDrag(dx);
+});
 
-      if (deltaX > distanceThreshold || (deltaX > 25 && velocity > velocityThreshold)) {
-        prev();
-        return;
-      }
+track.addEventListener('touchend',()=>{
+  if(!isDragging) return;
+  isDragging=false;
+  finishSwipe(lastDeltaX, Date.now()-dragStartTime);
+});
 
-      render();
-    }
+prevBtn.onclick = prev;
+nextBtn.onclick = next;
 
-    function next() {
-      goTo(currentIndex + 1);
-    }
+function isFullscreenActive(){ return !!document.fullscreenElement; }
+function supportsFullscreen(){ return !!app.requestFullscreen; }
 
-    function supportsFullscreen() {
-      return !!(
-        app.requestFullscreen ||
-        app.webkitRequestFullscreen ||
-        app.msRequestFullscreen ||
-        document.fullscreenEnabled ||
-        document.webkitFullscreenEnabled ||
-        document.msFullscreenEnabled
-      );
-    }
+async function enterFullscreen(){
+  if(!supportsFullscreen()) return;
+  await app.requestFullscreen();
+}
+async function exitFullscreen(){
+  if(document.exitFullscreen) await document.exitFullscreen();
+}
 
-    function isFullscreenActive() {
-      return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
-    }
+function updateFullscreenButtons(){
+  const mobile = isMobileLike();
+  const fs = isFullscreenActive();
+  const ok = supportsFullscreen();
+  exitFullscreenBtn.classList.toggle('hidden', !(mobile && fs && ok));
+  enterFullscreenBtn.classList.toggle('hidden', !(mobile && !fs && ok));
+}
 
-    async function enterFullscreen() {
-      if (!supportsFullscreen()) {
-        console.warn('Este navegador no permite pantalla completa con este botón.');
-        updateFullscreenButtons();
-        return;
-      }
+enterFullscreenBtn.onclick = enterFullscreen;
+exitFullscreenBtn.onclick = exitFullscreen;
 
-      try {
-        if (app.requestFullscreen) {
-          await app.requestFullscreen();
-        } else if (app.webkitRequestFullscreen) {
-          app.webkitRequestFullscreen();
-        } else if (app.msRequestFullscreen) {
-          app.msRequestFullscreen();
-        }
-      } catch (error) {
-        console.warn('No se pudo activar pantalla completa.', error);
-      }
-      updateFullscreenButtons();
-    }
+document.addEventListener('fullscreenchange', updateFullscreenButtons);
 
-    async function exitFullscreen() {
-      try {
-        if (document.exitFullscreen) {
-          await document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-          document.msExitFullscreen();
-        }
-      } catch (error) {
-        console.warn('No se pudo salir de pantalla completa.', error);
-      }
-      updateFullscreenButtons();
-    }
+window.addEventListener('resize', ()=>render(false));
+window.addEventListener('orientationchange', ()=>render(false));
 
-    function updateFullscreenButtons() {
-      const isMobile = isMobileLike();
-      const fullscreen = isFullscreenActive();
-      const canFullscreen = supportsFullscreen();
-      exitFullscreenBtn.classList.toggle('hidden', !(isMobile && fullscreen && canFullscreen));
-      enterFullscreenBtn.classList.toggle('hidden', !(isMobile && !fullscreen && canFullscreen));
-    }
-
-    function tryAutoFullscreen() {
-      if (!isMobileLike()) return;
-      if (isFullscreenActive()) return;
-      enterFullscreen();
-    }
-
-    function bindAutoFullscreenTriggers() {
-      const trigger = () => {
-        if (!isFullscreenActive()) {
-          tryAutoFullscreen();
-        }
-      };
-
-      document.addEventListener('touchstart', trigger, { passive: true, once: true });
-      document.addEventListener('click', trigger, { passive: true, once: true });
-    }
-
-    function prev() {
-      goTo(currentIndex - 1);
-    }
-
-    prevBtn.addEventListener('click', prev);
-    nextBtn.addEventListener('click', next);
-    enterFullscreenBtn.addEventListener('click', enterFullscreen);
-    exitFullscreenBtn.addEventListener('click', exitFullscreen);
-
-    document.addEventListener('fullscreenchange', updateFullscreenButtons);
-    document.addEventListener('webkitfullscreenchange', updateFullscreenButtons);
-    document.addEventListener('msfullscreenchange', updateFullscreenButtons);
-
-    window.addEventListener('keydown', (event) => {
-      if (isPortraitMobileMode) return;
-      if (event.key === 'ArrowRight') next();
-      if (event.key === 'ArrowLeft') prev();
-    });
-
-    track.addEventListener('touchstart', (event) => {
-      if (isPortraitMobileMode) return;
-      if (event.touches.length > 1) {
-        isDragging = false;
-        isLocked = false;
-        return;
-      }
-
-      startX = event.touches[0].clientX;
-      startY = event.touches[0].clientY;
-      currentX = startX;
-      dragStartTime = Date.now();
-      lastDeltaX = 0;
-      isDragging = true;
-      isLocked = false;
-      track.style.transition = 'none';
-    }, { passive: true });
-
-    track.addEventListener('touchmove', (event) => {
-      if (!isDragging || isPortraitMobileMode) return;
-      if (event.touches.length > 1) return;
-
-      const touch = event.touches[0];
-      const deltaX = touch.clientX - startX;
-      const deltaY = touch.clientY - startY;
-
-      if (!isLocked) {
-        if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) return;
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          isLocked = true;
-        } else {
-          isDragging = false;
-          render(false);
-          return;
-        }
-      }
-
-      currentX = touch.clientX;
-      lastDeltaX = deltaX;
-      applyDrag(deltaX);
-    }, { passive: true });
-
-    track.addEventListener('touchend', () => {
-      if (!isDragging || isPortraitMobileMode) return;
-      isDragging = false;
-      const durationMs = Date.now() - dragStartTime;
-      finishSwipe(lastDeltaX, durationMs);
-    });
-
-    track.addEventListener('touchcancel', () => {
-      isDragging = false;
-      render();
-    });
-
-    function setViewportSize() {
-      const vh = window.innerHeight * 0.01;
-      const vw = window.innerWidth * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-      document.documentElement.style.setProperty('--vw', `${vw}px`);
-    }
-
-    setViewportSize();
-    window.addEventListener('resize', () => {
-      setViewportSize();
-      render(false);
-    });
-    window.addEventListener('orientationchange', () => render(false));
-
-    buildSlides();
-    render(false);
-    updateFullscreenButtons();
-    bindAutoFullscreenTriggers();
-
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        tryAutoFullscreen();
-        updateFullscreenButtons();
-      }, 300);
-    });
-
-  </script>
+buildSlides();
+render(false);
+updateFullscreenButtons();
+</script>
 </body>
 </html>

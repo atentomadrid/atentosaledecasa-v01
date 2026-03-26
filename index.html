@@ -95,16 +95,7 @@
     }
 
     .status {
-      position: absolute;
-      left: 50%;
-      bottom: 16px;
-      transform: translateX(-50%);
-      color: white;
-      font-size: 14px;
-      background: rgba(0,0,0,0.35);
-      padding: 8px 12px;
-      border-radius: 999px;
-      backdrop-filter: blur(4px);
+      display: none;
     }
 
     .portrait-lock {
@@ -124,6 +115,34 @@
       display: flex;
     }
 
+    .fullscreen-btn,
+    .exit-fullscreen-btn {
+      position: absolute;
+      z-index: 20;
+      border: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fullscreen-btn {
+      right: 16px;
+      bottom: 16px;
+    }
+
+    .exit-fullscreen-btn {
+      right: 16px;
+      top: 16px;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -139,6 +158,8 @@
     </div>
 
     <div class="status" id="status"></div>
+    <button class="exit-fullscreen-btn hidden" id="exitFullscreenBtn" aria-label="Salir de pantalla completa">×</button>
+    <button class="fullscreen-btn hidden" id="enterFullscreenBtn" aria-label="Entrar en pantalla completa">⤢</button>
     <div class="portrait-lock" id="portraitLock"></div>
   </div>
 
@@ -151,6 +172,8 @@
 
     const track = document.getElementById('track');
     const status = document.getElementById('status');
+    const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
+    const enterFullscreenBtn = document.getElementById('enterFullscreenBtn');
     const portraitLock = document.getElementById('portraitLock');
     const controls = document.getElementById('controls');
     const prevBtn = document.getElementById('prevBtn');
@@ -196,11 +219,7 @@
     }
 
     function updateStatus() {
-      if (isPortraitMobileMode) {
-        status.textContent = 'Imagen 0';
-      } else {
-        status.textContent = `Imagen ${currentIndex + 1} de ${carouselImages.length}`;
-      }
+      status.textContent = '';
     }
 
     function updateControls() {
@@ -210,6 +229,7 @@
       portraitLock.textContent = hide
         ? 'Gira el móvil en horizontal para navegar las imágenes.'
         : '';
+      updateFullscreenButtons();
     }
 
     function render(animate = true) {
@@ -241,12 +261,66 @@
       goTo(currentIndex + 1);
     }
 
+    function isFullscreenActive() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+    }
+
+    async function enterFullscreen() {
+      try {
+        const element = document.documentElement;
+        if (element.requestFullscreen) {
+          await element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+          element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+          element.msRequestFullscreen();
+        }
+      } catch (error) {
+        console.warn('No se pudo activar pantalla completa.', error);
+      }
+      updateFullscreenButtons();
+    }
+
+    async function exitFullscreen() {
+      try {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) {
+          document.msExitFullscreen();
+        }
+      } catch (error) {
+        console.warn('No se pudo salir de pantalla completa.', error);
+      }
+      updateFullscreenButtons();
+    }
+
+    function updateFullscreenButtons() {
+      const isMobile = isMobileLike();
+      const fullscreen = isFullscreenActive();
+      exitFullscreenBtn.classList.toggle('hidden', !(isMobile && fullscreen));
+      enterFullscreenBtn.classList.toggle('hidden', !(isMobile && !fullscreen));
+    }
+
+    function tryAutoFullscreen() {
+      if (!isMobileLike()) return;
+      if (isFullscreenActive()) return;
+      enterFullscreen();
+    }
+
     function prev() {
       goTo(currentIndex - 1);
     }
 
     prevBtn.addEventListener('click', prev);
     nextBtn.addEventListener('click', next);
+    enterFullscreenBtn.addEventListener('click', enterFullscreen);
+    exitFullscreenBtn.addEventListener('click', exitFullscreen);
+
+    document.addEventListener('fullscreenchange', updateFullscreenButtons);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenButtons);
+    document.addEventListener('msfullscreenchange', updateFullscreenButtons);
 
     window.addEventListener('keydown', (event) => {
       if (isPortraitMobileMode) return;
@@ -307,6 +381,13 @@
 
     buildSlides();
     render(false);
+    updateFullscreenButtons();
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        tryAutoFullscreen();
+      }, 300);
+    });
   </script>
 </body>
 </html>

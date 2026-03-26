@@ -35,7 +35,7 @@
       display: flex;
       width: 100%;
       height: 100%;
-      transition: transform 0.35s ease;
+      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
       will-change: transform;
     }
 
@@ -52,6 +52,7 @@
       justify-content: center;
       background: #000;
       overflow: hidden;
+      position: relative;
     }
 
     .slide img {
@@ -200,8 +201,12 @@
     let isPortraitMobileMode = false;
 
     let startX = 0;
+    let startY = 0;
     let currentX = 0;
     let isDragging = false;
+    let isLocked = false;
+    let dragStartTime = 0;
+    let lastDeltaX = 0;
 
     function isMobileLike() {
       return window.matchMedia('(max-width: 900px)').matches;
@@ -242,15 +247,18 @@
     }
 
     function render(animate = true) {
-      track.style.transition = animate ? 'transform 0.35s ease' : 'none';
+      track.style.transition = animate
+        ? 'transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)'
+        : 'none';
 
       isPortraitMobileMode = shouldShowCover();
 
       if (isPortraitMobileMode) {
-        track.style.transform = 'translateX(0vw)';
+        track.style.transform = 'translate3d(0, 0, 0)';
       } else {
         const visibleSlide = currentIndex;
-        track.style.transform = `translateX(-${visibleSlide * 100}vw)`;
+        const slideWidth = window.innerWidth;
+        track.style.transform = `translate3d(-${visibleSlide * slideWidth}px, 0, 0)`;
       }
 
       updateStatus();
@@ -264,6 +272,35 @@
       } else {
         updateStatus();
       }
+    }
+
+    function applyDrag(deltaX) {
+      const slideWidth = window.innerWidth;
+      const baseOffset = -(currentIndex * slideWidth);
+      const atFirst = currentIndex === 0 && deltaX > 0;
+      const atLast = currentIndex === carouselImages.length - 1 && deltaX < 0;
+      const resistance = (atFirst || atLast) ? 0.35 : 1;
+      const offset = baseOffset + (deltaX * resistance);
+      track.style.transform = `translate3d(${offset}px, 0, 0)`;
+    }
+
+    function finishSwipe(deltaX, durationMs) {
+      const slideWidth = window.innerWidth;
+      const velocity = durationMs > 0 ? Math.abs(deltaX) / durationMs : 0;
+      const distanceThreshold = slideWidth * 0.18;
+      const velocityThreshold = 0.55;
+
+      if (deltaX < -distanceThreshold || (deltaX < -25 && velocity > velocityThreshold)) {
+        next();
+        return;
+      }
+
+      if (deltaX > distanceThreshold || (deltaX > 25 && velocity > velocityThreshold)) {
+        prev();
+        return;
+      }
+
+      render();
     }
 
     function next() {
@@ -352,37 +389,54 @@
       if (isPortraitMobileMode) return;
       if (event.touches.length > 1) {
         isDragging = false;
+        isLocked = false;
         return;
       }
+
       startX = event.touches[0].clientX;
+      startY = event.touches[0].clientY;
       currentX = startX;
+      dragStartTime = Date.now();
+      lastDeltaX = 0;
       isDragging = true;
+      isLocked = false;
       track.style.transition = 'none';
     }, { passive: true });
 
     track.addEventListener('touchmove', (event) => {
       if (!isDragging || isPortraitMobileMode) return;
       if (event.touches.length > 1) return;
-      currentX = event.touches[0].clientX;
-      const deltaX = currentX - startX;
-      const visibleSlide = currentIndex;
-      const offset = -visibleSlide * window.innerWidth + deltaX;
-      track.style.transform = `translateX(${offset}px)`;
+
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - startX;
+      const deltaY = touch.clientY - startY;
+
+      if (!isLocked) {
+        if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) return;
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          isLocked = true;
+        } else {
+          isDragging = false;
+          render(false);
+          return;
+        }
+      }
+
+      currentX = touch.clientX;
+      lastDeltaX = deltaX;
+      applyDrag(deltaX);
     }, { passive: true });
 
     track.addEventListener('touchend', () => {
       if (!isDragging || isPortraitMobileMode) return;
       isDragging = false;
-      const deltaX = currentX - startX;
-      const threshold = window.innerWidth * 0.15;
+      const durationMs = Date.now() - dragStartTime;
+      finishSwipe(lastDeltaX, durationMs);
+    });
 
-      if (deltaX < -threshold) {
-        next();
-      } else if (deltaX > threshold) {
-        prev();
-      } else {
-        render();
-      }
+    track.addEventListener('touchcancel', () => {
+      isDragging = false;
+      render();
     });
 
     function setViewportSize() {

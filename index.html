@@ -78,11 +78,7 @@
       padding: 0 12px;
     }
 
-    @media (max-width: 900px) {
-      .controls {
-        display: none;
-      }
-    }
+    
 
     .nav {
       pointer-events: auto;
@@ -187,6 +183,7 @@
     const coverImage = 'imagen 0.jpg';
     const carouselImages = Array.from({ length: 9 }, (_, i) => `imagen ${i + 1}.jpg`);
 
+    const app = document.getElementById('app');
     const track = document.getElementById('track');
     const status = document.getElementById('status');
     const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
@@ -239,8 +236,7 @@
 
     function updateControls() {
       const hide = isPortraitMobileMode;
-      const mobile = isMobileLike();
-      controls.classList.toggle('hidden', hide || mobile);
+      controls.classList.toggle('hidden', hide);
       portraitLock.classList.toggle('visible', hide);
       portraitLock.innerHTML = hide ? `<img src="${coverImage}" alt="Imagen 0" />` : '';
       updateFullscreenButtons();
@@ -307,19 +303,35 @@
       goTo(currentIndex + 1);
     }
 
+    function supportsFullscreen() {
+      return !!(
+        app.requestFullscreen ||
+        app.webkitRequestFullscreen ||
+        app.msRequestFullscreen ||
+        document.fullscreenEnabled ||
+        document.webkitFullscreenEnabled ||
+        document.msFullscreenEnabled
+      );
+    }
+
     function isFullscreenActive() {
       return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
     }
 
     async function enterFullscreen() {
+      if (!supportsFullscreen()) {
+        console.warn('Este navegador no permite pantalla completa con este botón.');
+        updateFullscreenButtons();
+        return;
+      }
+
       try {
-        const element = document.documentElement;
-        if (element.requestFullscreen) {
-          await element.requestFullscreen();
-        } else if (element.webkitRequestFullscreen) {
-          element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) {
-          element.msRequestFullscreen();
+        if (app.requestFullscreen) {
+          await app.requestFullscreen();
+        } else if (app.webkitRequestFullscreen) {
+          app.webkitRequestFullscreen();
+        } else if (app.msRequestFullscreen) {
+          app.msRequestFullscreen();
         }
       } catch (error) {
         console.warn('No se pudo activar pantalla completa.', error);
@@ -345,8 +357,9 @@
     function updateFullscreenButtons() {
       const isMobile = isMobileLike();
       const fullscreen = isFullscreenActive();
-      exitFullscreenBtn.classList.toggle('hidden', !(isMobile && fullscreen));
-      enterFullscreenBtn.classList.toggle('hidden', !(isMobile && !fullscreen));
+      const canFullscreen = supportsFullscreen();
+      exitFullscreenBtn.classList.toggle('hidden', !(isMobile && fullscreen && canFullscreen));
+      enterFullscreenBtn.classList.toggle('hidden', !(isMobile && !fullscreen && canFullscreen));
     }
 
     function tryAutoFullscreen() {
